@@ -64,4 +64,4 @@ jobs:
         with:
           app-name: 'BookMyOTAdmin'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B044A15D9B244F4F9232F22AE70B3E54 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_74FB82DD429944C2B975FFD40FB8149E }}

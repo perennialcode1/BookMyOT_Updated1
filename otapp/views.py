@@ -41,7 +41,7 @@ def hospital_registration(request):
         user_data = {"inputdata": {"username": email, "password": pwd}}
         response = requests.post(url, json = user_data)
         res = response.json()
-        print(res, 'hospital registrationh')
+       
         if res['Status'] == True:
             messages.error(request, "Email already exists, try with another email..!")
             return redirect('hospital_registration')
@@ -66,7 +66,7 @@ def verify_otp(request):
     pwd = request.session.get('pwd')
     hospital_name = request.session.get('hospital_name')
     mobile_num = request.session.get('mobile_num')
-    print(email,pwd,hospital_name,mobile_num)
+  
     if len(email) > 2:
         parts = email.split("@")
         if len(parts) == 2:
@@ -95,7 +95,7 @@ def verify_otp(request):
                     }
                 }
                 a = requests.post(reg_url, json=data).json()
-                print(a, 'otp a')
+                
                 messages.success(request, 'OTP authentication was successful; you may now proceed to log in.')
                 return redirect('https://bookmyot.azurewebsites.net/Account/Login')
             else:
@@ -314,7 +314,7 @@ def hospital_near_by_physicians_view(request, id):
         'data': data,
         'hosid':id,
     }
-    print(context)
+   
     return render(request, 'hospital/hospital-near-physicians-view.html', context)
 
 

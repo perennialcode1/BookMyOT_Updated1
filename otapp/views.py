@@ -32,43 +32,41 @@ def privacy_policy(request):
     return render(request, 'main/privacy-policy.html')
 
 def hospital_registration(request):
-    url = f'{domain_name.url}CreateHospitalProfile'
+    url = f'{domain_name.url}adminorHospitalLogin'
     if request.method == 'POST':
         hospitalname = request.POST.get('hospitalname')
         mobile = request.POST.get('mobile')
         email = request.POST.get('email')
         pwd = mobile[-4:]
-        data = {
-            "inputdata": {
-                "hospitalname": hospitalname,
-                "mobile": mobile,
-                "email": email,
-                "username": email,
-                "psw": pwd,
-                "tier": None
-            }
-        }
-        a = requests.post(url, json=data).json()
-        print(a)
-        if a['Status'] == False:
-            if a['Message'] == 1:
-                messages.error(request, "Email already exists, try with another email..!")
-            else:
-                messages.error(request, 'Something went wrong')
+        user_data = {"inputdata": {"username": email, "password": pwd}}
+        response = requests.post(url, json = user_data)
+        res = response.json()
+        print(res, 'hospital registrationh')
+        if res['Status'] == True:
+            messages.error(request, "Email already exists, try with another email..!")
+            return redirect('hospital_registration')
         else:
             generated_otp = random.randint(100000, 999999)
             subject = 'Registration OTP'
             message_body = f'Your regestration OTP for BookMyOT is  {generated_otp}'
             send_email(subject, message_body, email)
             request.session['user_email'] = email
+            request.session['pwd'] = pwd
+            request.session['mobile_num'] = mobile
+            request.session['hospital_name'] = hospitalname
             request.session['registration_otp'] = generated_otp
             request.session.set_expiry(60 * 5)
-            messages.success(request, "Hospital registration successful, Enter OTP fro verification..")
+            messages.success(request, "Hospital registration in progress, Enter OTP for verification..")
             return redirect('verify_otp')
     return render(request, 'main/hospital-registration.html')
 
 def verify_otp(request):
+    reg_url = f'{domain_name.url}CreateHospitalProfile'
     email = request.session.get('user_email')
+    pwd = request.session.get('pwd')
+    hospital_name = request.session.get('hospital_name')
+    mobile_num = request.session.get('mobile_num')
+    print(email,pwd,hospital_name,mobile_num)
     if len(email) > 2:
         parts = email.split("@")
         if len(parts) == 2:
@@ -80,15 +78,26 @@ def verify_otp(request):
         fourth = request.POST.get('fourth')
         fifth = request.POST.get('fifth')
         sixth = request.POST.get('sixth')
-        #stored_otp = request.session.get('registration_otp')
-        stored_otp = 123456
-        user_entered_otp = int(first + second + third + fourth + fifth + sixth)
+        stored_otp = request.session.get('registration_otp')
+        user_entered_otp = int(f"{first}{second}{third}{fourth}{fifth}{sixth}")
         try:
             if user_entered_otp == stored_otp:
                 del request.session['registration_otp']
-                
-                messages.success(request, 'OTP authentication successfull..')
-                return redirect('admin_login')
+
+                data = {
+                    "inputdata": {
+                        "hospitalname": hospital_name,
+                        "mobile": mobile_num,
+                        "email": email,
+                        "username": email,
+                        "psw": pwd,
+                        "tier": None
+                    }
+                }
+                a = requests.post(reg_url, json=data).json()
+                print(a, 'otp a')
+                messages.success(request, 'OTP authentication was successful; you may now proceed to log in.')
+                return redirect('https://bookmyot.azurewebsites.net/Account/Login')
             else:
                 messages.error(request, 'Entered OTP did not match, please try again..!')
                 return redirect('verify_otp')

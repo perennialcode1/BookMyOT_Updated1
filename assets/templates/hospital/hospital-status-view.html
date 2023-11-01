@@ -43,6 +43,9 @@
                                                 <img style="width:50px; margin-left:-20px" src="{% static 'discord-verification-verification.gif' %}">
                                                 
                                             </label>
+                                        {% elif status == 4 %}
+                                            <label id="lblHospitalName" class="text-warning">: Deactivated
+                                            </label>
                                         {% else %}
                                             <label id="lblHospitalName" class="text-danger">: Rejected<i class="bi bi-x-circle-fill ms-1 text-danger"></i></label>
                                         {% endif %}

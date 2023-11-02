@@ -23,6 +23,7 @@ import random
 # firebase_admin.initialize_app(cred)
 
 
+
 #  Views Starts from here..
 
 def terms_and_conditions(request):
